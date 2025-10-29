@@ -2,7 +2,7 @@ import re
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import nltk
-import joblib
+import cloudpickle
 from flask import Flask, request, render_template
 
 # Download NLTK resources
@@ -24,7 +24,10 @@ def clean_text(text):
 app = Flask(__name__)
 
 # Load pipeline
-model = joblib.load('fake_news_pipeline.pkl')
+with open('fake_news_vectorizer.pkl', 'rb') as f:
+    vectorizer = cloudpickle.load(f)
+with open('fake_news_model.pkl', 'rb') as f:
+    model = cloudpickle.load(f)
 
 @app.route('/')
 def home():
@@ -33,7 +36,9 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     text = request.form['news_text']
-    result = model.predict([text])[0]
+    cleaned = clean_text(text)
+    vect = vectorizer.transform([cleaned])
+    result = model.predict(vect)[0]
     message = "✅ This looks Real News" if result == 1 else "❌ This looks Fake News"
     return render_template('index.html', prediction=message)
 
