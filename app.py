@@ -24,7 +24,7 @@ def clean_text(text):
 app = Flask(__name__)
 
 # Load pipeline
-model = joblib.load(r'E:\Programming\Machine Learning\Demo\fake_news_pipeline.pkl')
+model = joblib.load('fake_news_pipeline.pkl')
 
 @app.route('/')
 def home():
